@@ -1,0 +1,207 @@
+openapi: 3.0.0
+info:
+  title: Bingo API
+  description: API para gestionar el juego de Bingo.
+  version: 1.0.0
+servers:
+  - url: https://api.bingo-game.test
+    description: Servidor de producción
+  - url: http://localhost:8080
+    description: Servidor local
+
+paths:
+  /api/bingo/game:
+    post:
+      summary: Crear nuevo juego bingo
+      tags:
+        - BingoGames
+      responses:
+        '201':
+          description: Juego creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BingoGame'
+    get:
+      summary: Listar juegos creados
+      operationId: listBingoGames
+      tags:
+        - BingoGames
+      responses:
+        '200':
+          description: Lista de juegos creados
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BingoGame'
+  /api/bingo/{gameId}/cards:
+    parameters:
+      - name: gameId
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      summary: Generar un carton de Bingo
+      operationId: generateBingoCard
+      tags:
+        - BingoCards
+      responses:
+        '201':
+          description: Carton generado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BingoCard'
+    get:
+      summary: Listar cartones generados
+      operationId: listBingoCards
+      tags:
+        - BingoCards
+      responses:
+        '200':
+          description: Lista de cartones generados
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BingoCard'
+  /api/bingo/{gameId}/cards/{id}:
+    parameters:
+      - name: gameId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Obtener un carton por id
+      operationId: getBingoCard
+      tags:
+        - BingoCards
+      responses:
+        '200':
+          description: Carton encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BingoCard'
+        '404':
+          description: Carton no encontrado
+  /api/bingo/{gameId}/numbers:
+    parameters:
+      - name: gameId
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      summary: Llamar un número de Bingo aleatorio
+      operationId: callBingoNumber
+      tags:
+        - BingoNumbers
+      responses:
+        '200':
+          description: Número llamado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BingoNumber'
+    get:
+      summary: Obtener los números llamados
+      operationId: getBingoNumbers
+      tags:
+        - BingoNumbers
+      responses:
+        '200':
+          description: Lista de números llamados hasta el momento
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BingoNumber'
+  /api/bingo/check:
+    post:
+      summary: Verificar si un carton ha ganado
+      operationId: checkBingoCard
+      tags:
+        - BingoValidation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BingoCardCheckRequest'
+      responses:
+        '201':
+          description: Resultado de la verificación
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BingoCardCheckResponse'
+
+components:
+  schemas:
+    BingoGame:
+      type: object
+      x-class-extra-annotation: "@lombok.Data"
+      properties:
+        id:
+          type: string
+          format: uuid
+          x-field-extra-annotation: "@org.springframework.data.annotation.Id"
+        status:
+          type: string
+          enum: [CREATED, IN_PROGRESS, FINISHED]
+        calledNumbers:
+          type: string
+    BingoCard:
+      type: object
+      x-class-extra-annotation: "@lombok.Data"
+      properties:
+        id:
+          type: string
+          format: uuid
+          x-field-extra-annotation: "@org.springframework.data.annotation.Id"
+        gameId:
+          type: string
+          format: uuid
+        numbersJson:
+          type: string
+    BingoNumber:
+      type: object
+      properties:
+        number:
+          type: integer
+          minimum: 1
+          maximum: 75
+        column:
+          type: string
+          enum: [B, I, N, G, O]
+        gameId:
+          type: string
+          format: uuid
+    BingoCardCheckRequest:
+      type: object
+      properties:
+        cardId:
+          type: string
+          format: uuid
+        gameId:
+          type: string
+          format: uuid
+    BingoCardCheckResponse:
+      type: object
+      properties:
+        isWinner:
+          type: boolean
+        message:
+          type: string
