@@ -1,13 +1,3 @@
-
-# Project Title
-
-A brief description of what this project does and who it's for
-
-
-# Project Title
-
-A brief description of what this project does and who it's for
-
 # 🎱 Bingo API
 
 Una API RESTful para gestionar un juego de Bingo, implementada con **Spring Boot** y **Spring WebFlux**. Esta API permite crear juegos de Bingo, generar tarjetas, llamar números aleatorios y consultar números ya llamados. Utiliza **R2DBC** para una conexión no bloqueante con bases de datos relacionales.
